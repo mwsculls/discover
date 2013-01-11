@@ -1,0 +1,270 @@
+if(typeof console === "undefined"){
+    console = {
+        log: function() {},
+        debug: function() {}
+    };
+}
+
+function read_cookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function API(){
+    this.URL = "https://et.barackobama.com";
+    this.return_data= false;
+}
+
+API.NOT_LOGGED_IN = "User not logged in";
+API.USER_INFO = "https://login.barackobama.com/account/info/";
+API.user = false;
+
+
+API.jsonp_data = function(data){
+    API.return_data = data;
+}
+
+API.user_data = function(data){
+    API.user = data;
+}
+
+API.prototype.get_user = function(){
+    try{
+        var login_info = read_cookie('login-information');
+        if(!login_info){
+            console.log("not logged in");
+            return;
+        }
+        console.log(login_info);
+        console.log("loading user data");
+        var head= document.getElementsByTagName('head')[0];
+        var script= document.createElement('script');
+        script.type= 'text/javascript';
+        var that = this;
+        this.fired = false;
+        script.onreadystatechange = function (){
+            if (this.readyState == 'complete' || this.readyState == 'loaded'){
+                if(!that.fired){
+                    that.fired=true;
+                    that.user_loaded();
+                }
+            }
+        }
+        script.onload= function(){
+            if(!that.fired){
+                that.fired=true;
+                that.user_loaded();
+            }
+        }
+        script.src= API.USER_INFO+read_cookie('login-information')+"?jsonp_callback=API.user_data";
+        head.appendChild(script);
+    }catch(e){
+        console.log(e);
+    }
+}
+
+API.prototype.user_loaded = function(){
+    if(this.user_callback){
+        this.user_callback(API.user);
+    }
+}
+
+new API().get_user();
+
+API.prototype.jsonp = function(url, data){
+    var head= document.getElementsByTagName('head')[0];
+    var script= document.createElement('script');
+    script.type= 'text/javascript';
+    var that = this;
+    this.fired = false;
+    script.onreadystatechange = function (){
+        if (this.readyState == 'complete' || this.readyState == 'loaded'){
+            if(!that.fired){
+                that.fired=true;
+                that.jsonp_loaded();
+            }
+        }
+    }
+    script.onload= function(){
+        if(!that.fired){
+            that.fired=true;
+            that.jsonp_loaded();
+        }
+    }
+    script.src= url+"?jsonp=API.jsonp_data&data="+JSON.stringify(data);
+    head.appendChild(script);
+}
+
+API.prototype.jsonp_loaded = function(){
+    if(this.callback) this.callback(API.return_data);
+}
+
+API.prototype.fetch = function(url, data, async){
+    async = async ? async : false;
+    var x=window.XMLHttpRequest?new XMLHttpRequest():new ActiveXObject('Microsoft.XMLHTTP');
+    var that = this;
+    x.onreadystatechange=function(){
+        if(x.readyState==4 && x.status==200){
+            try{
+                var res = JSON.parse(x.responseText);                         
+                if(that.callback) that.callback(res);
+            }catch(e){
+                if(that.callback) that.callback({error:"There was an error."});
+            }
+        }
+    };
+    if(data){
+        try{
+            x.open('POST', url, async);
+            x.setRequestHeader('Content-type','application/json');
+            x.withCredentials = true;
+            data = JSON.stringify(data);
+            x.send(data);
+        }catch(e){
+            try{
+                this.jsonp(url, data);
+            }catch(e){
+                console.log(e);
+            }
+        }
+    }else{
+        x.open('GET', url, async);
+        x.send(null);
+    }
+}
+
+API.prototype.send = function(data, endpoint, callback, required_login){
+    if(required_login === undefined) required_login = true;
+    this.endpoint = endpoint;
+    this.event_url = this.URL+this.endpoint;
+    this.obj = data;
+    this.callback = callback;
+    if(API.user || !required_login){
+        this.obj.GUID = API.user.guid;
+        this.fetch(this.event_url, this.obj, true);
+    }else{
+        this.user_callback = this.required_login;
+        this.get_user();
+    }
+}
+
+API.prototype.required_login = function(data){
+    if(!data) throw("User must be logged in");
+    this.send(this.obj, this.endpoint, this.callback);
+}
+
+Share.prototype = new API();
+Share.prototype.constructor = Share;
+
+function Share(url, channel, topic, source, recipient, callback){
+    this.send({url:url, channel:channel, topic:topic, source:source, recipient:recipient}, '/share/', callback);
+}
+
+Suppression.prototype = new API();
+Suppression.prototype.constructor = Suppression;
+
+function Suppression(campaign, source, recipient, callback){
+    this.send({campaign:campaign, source:source, recipient:recipient}, '/suppress/', callback);
+}
+
+Donate.prototype = new API();
+Donate.prototype.constructor = Donate;
+
+function Donate(amount, url, source, callback){
+    this.send({amount:amount, url:url, source:source}, '/donate/', callback);
+}
+
+RSVP.prototype = new API();
+RSVP.prototype.constructor = RSVP;
+
+function RSVP(event, url, source, callback){
+    this.send({event:event, url:url, source:source}, '/rsvp/', callback);
+}
+
+Signup.prototype = new API();
+Signup.prototype.constructor = Signup;
+
+function Signup(email, zip, url, source, callback){
+    this.send({email:email, zip:zip, url:url, source:source}, '/signup/', callback);
+}
+
+Progress.prototype = new API();
+Progress.prototype.constructor = Progress;
+
+function Progress(marker, url, source, callback, required_login){
+    this.send({marker:marker, url:url, source:source}, '/progress/', callback, required_login);
+}
+
+Target.prototype = new API();
+Target.prototype.constructor = Target;
+
+function Target(fb_id, campaign_id, url, channel, topic, source, callback, limit){
+    this.obj = {fb_id:fb_id, campaign_id:campaign_id, url:url, channel:channel, topic:topic, source:source, limit:limit} 
+    this.send(this.obj, '/target/', callback); 
+}
+
+Like.prototype = new API();
+Like.prototype.constructor = Like;
+
+function Like(channel, url, source, callback){
+    this.send({channel:channel, url:url, source:source}, '/like/', callback);
+}
+
+Aggregate.prototype = new API();
+Aggregate.prototype.constructor = Aggregate;
+
+function Aggregate(user, callback){
+    this.send({user:user}, '/aggregate/', callback);
+}
+
+Shared.prototype = new API();
+Shared.prototype.constructor = Shared;
+
+function Shared(shares, callback){
+    this.send({shares:shares}, '/shared/', callback);
+}
+
+Shares.prototype = new API();
+Shares.prototype.constructor = Shares;
+
+function Shares(campaign, source, callback){
+    this.send({campaign:campaign, source:source}, '/shares/', callback);
+}
+
+Encrypt.prototype = new API();
+Encrypt.prototype.constructor = Encrypt;
+
+function Encrypt(obj, callback){
+    this.send(obj, '/encrypt/', callback);
+}
+
+Attribution.prototype = new API();
+Attribution.prototype.constructor = Attribution;
+
+function Attribution(obj, callback){
+    this.send(obj, '/attribution/', callback, false);
+}
+
+PersonMatch.prototype = new API();
+PersonMatch.prototype.constructor = PersonMatch;
+
+function PersonMatch(firstname, lastname, email, address1, city, state, zip, dob_year, dob_month, dob_day, callback){
+    var obj = {}
+    obj.firstname = firstname;
+    obj.lastname =  lastname;
+    obj.email = email || "";
+    obj.addr1 = address1 || "";
+    obj.city = city || "";
+    obj.state_cd = state || "";
+    obj.postal_code = zip || 0;
+    obj.dob_year = dob_year || 0;
+    obj.dob_month = dob_month || 0;
+    obj.dob_day = dob_day || 0;
+    this.send(obj, '/person_match/', callback, false);
+}

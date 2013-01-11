@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Untitled Document</title>
+</head>
+
+<body>
+<script type="text/javascript" language="JavaScript"><!--
+function ReverseDisplay(d) {
+if(document.getElementById(d).style.display == "none") { document.getElementById(d).style.display = "block"; }
+else { document.getElementById(d).style.display = "none"; }
+}
+function HideAllShowOne(d) {
+// Between the quotation marks, list the id values of each div.
+
+var IDvaluesOfEachDiv = "idone idtwo idthree idfour";
+
+//-------------------------------------------------------------
+IDvaluesOfEachDiv = IDvaluesOfEachDiv.replace(/[,\s"']/g," ");
+IDvaluesOfEachDiv = IDvaluesOfEachDiv.replace(/^\s*/,"");
+IDvaluesOfEachDiv = IDvaluesOfEachDiv.replace(/\s*$/,"");
+IDvaluesOfEachDiv = IDvaluesOfEachDiv.replace(/  +/g," ");
+var IDlist = IDvaluesOfEachDiv.split(" ");
+for(var i=0; i<IDlist.length; i++) { HideContent(IDlist[i]); }
+ShowContent(d);
+}
+//--></script>
+<div id="mark" style="display:none;">
+<p>Mark's content goes here.</p>
+</div>
+<p><a href="javascript:ReverseDisplay('mark')">
+Click to show/hide Mark's Content.
+</a>
+<div id="bob" style="display:none;">
+<p> Bob'scontent goes here.</p>
+</div>
+<a href="javascript:ReverseDisplay('bob')">
+Click to show/hide Bob's Content.
+</a>
+
+</body>
+</html>

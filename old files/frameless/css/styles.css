@@ -1,0 +1,72 @@
+body, div, h1, h2, h3, h4, h5, h6, p, blockquote, pre, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, th, td, article, aside, figure, footer, header, hgroup, menu, nav, section {
+	margin:0;
+	padding:0;
+	border:0;
+}
+html {
+	height:100%;
+	-webkit-text-size-adjust:100%;
+	-ms-text-size-adjust:100%;
+}
+body {
+	min-height:100%;
+	font-size:100%;
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, nav, section, audio, canvas, video {
+	display:block;
+}
+body {
+	font-size:1.0625em;
+	line-height:1.411764705882353em;
+	font-family: 'Rokkitt', serif;
+	/*font-family: 'Arvo', serif;*/
+	/*font-family:futura-pt, Futura, "Trebuchet MS", sans-serif;*/
+}
+body {
+	background:#EBEBEB;
+	color:#252525;
+}
+#nav a:hover, #nav a:hover .icon, #downloads a:hover strong {
+	background:#e84c38;
+	color:#ffffff;
+}
+body {
+	-webkit-tap-highlight-color:rgba(232, 76, 56, 0.38);
+}
+#masthead {
+	margin:0 auto;
+	width:1400px;
+	height:92px;
+	margin-top:10px;
+	margin-bottom:10px;	
+}
+#masthead h1 {
+	width:372px;
+	height:92px;
+	text-indent:-100000px;
+	background-image:url(../images/logo.jpg);
+	float:left;
+}
+section {
+	margin:0 auto;
+	max-width:1400px;	
+}
+section li {
+	list-style:none;
+}
+#home {
+	min-height:1000px;
+	background-color:#F0F;
+}
+#profiles {
+	min-height:1000px;
+	background-color:#FBA;
+}
+#news {
+	min-height:1000px;
+	background-color:#F80;
+}
+#contact {
+	min-height:1000px;
+	background-color:#8F0;
+}

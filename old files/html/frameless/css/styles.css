@@ -1,0 +1,15 @@
+@charset "UTF-8";
+/* CSS Document */
+body,div,h1,h2,h3,h4,h5,h6,p,blockquote,pre,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,th,td,article,aside,figure,footer,header,hgroup,menu,nav,section{margin:0;padding:0;border:0;}
+#home ul {
+	min-height:400px;
+	width:700px;
+	background-color:#0F3;
+	overflow:hidden;
+}
+#home .blog {
+	min-height:400px;
+	width:700px;
+	background-color:#0CF;
+	overflow:hidden;
+}
